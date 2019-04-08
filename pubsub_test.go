@@ -2,7 +2,6 @@ package newstore_pubsub
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
 )
 
@@ -35,22 +34,15 @@ func TestSimplePublish(t *testing.T) {
 func TestDifferentCallbacks(t *testing.T) {
 	event := "different callbacks"
 
-	var counter int = 0
-
 	cb1 := func(eventName string, payload Payload) {
-		counter = counter + 2
 		fmt.Println("ran cb 1")
 	}
-	Subscribe(event, cb1)
 
 	cb2 := func(eventName string, payload Payload) {
-		counter = counter + 2
 		fmt.Println("ran cb 2")
 	}
-	Subscribe(event, cb2)
 
 	cb3 := func(eventName string, payload Payload) {
-		counter = counter + 2
 		fmt.Println("ran cb 3")
 	}
 
@@ -59,21 +51,7 @@ func TestDifferentCallbacks(t *testing.T) {
 		Subscribe(event, cb)
 	}
 
-	var present []int
-	for i, cb := range callbacks {
-		valCb := reflect.ValueOf(cb)
-		for _, x := range pubsub[event] {
-			valX := reflect.ValueOf(x)
-			if valCb.Pointer() == valX.Pointer() {
-				present = append(present, i)
-				break
-			}
-		}
-	}
-	if len(present) > 0 {
-		t.Fatalf("callback %v are present", present)
-	}
-
+	Publish("different callbacks", Payload{})
 }
 
 func TestMultipleCallbacks(t *testing.T) {
@@ -83,17 +61,14 @@ func TestMultipleCallbacks(t *testing.T) {
 
 	Subscribe(event, func(eventName string, payload Payload) {
 		counter = counter + 2
-		fmt.Println("ran cb 1")
 	})
 
 	Subscribe(event, func(eventName string, payload Payload) {
 		counter = counter + 3
-		fmt.Println("ran cb 2")
 	})
 
 	Subscribe(event, func(eventName string, payload Payload) {
 		counter = counter + 4
-		fmt.Println("ran cb 3")
 	})
 
 	Publish(event, Payload{})

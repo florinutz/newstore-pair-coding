@@ -22,17 +22,17 @@ func Subscribe(eventName string, callbackFunc CallbackFunc) {
 func Publish(eventName string, payload Payload) {
 	callbacks, ok := pubsub[eventName]
 	if !ok {
-		return
+		panic("no such event")
 	}
 
 	var wg sync.WaitGroup
+	wg.Add(len(callbacks))
 
 	for _, callback := range callbacks {
-		wg.Add(1)
-		go func() {
+		go func(callback CallbackFunc) {
 			callback(eventName, payload)
 			wg.Done()
-		}()
+		}(callback)
 	}
 
 	wg.Wait()
